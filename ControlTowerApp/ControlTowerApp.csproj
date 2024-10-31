@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ControlTowerBLL\BLLUnitTests\BLLUnitTests.csproj" />
+    <ProjectReference Include="..\ControlTowerBLL\ControlTowerBLL.csproj" />
+    <ProjectReference Include="..\ControlTowerDTO\ControlTowerDTO.csproj" />
+    <ProjectReference Include="..\ControlTowerServices\ControlTowerServices.csproj" />
+    <ProjectReference Include="..\UtilitiesLib\UtilitiesLib.csproj" />
+  </ItemGroup>
+
+</Project>
