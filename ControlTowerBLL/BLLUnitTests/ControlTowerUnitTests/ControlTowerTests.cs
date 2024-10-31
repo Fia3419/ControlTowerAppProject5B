@@ -1,41 +1,81 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using ControlTowerBLL;
+using ControlTowerBLL.Interfaces;
+using System;
 
 namespace ControlTowerBLL.BLLUnitTests
 {
     [TestClass]
     public class ControlTowerTests
     {
-        [TestMethod]
-        public void AddFlight_ShouldAddFlightToList()
+        private ControlTower CreateControlTower()
+        {
+            return new ControlTower();
+        }
+
+        [DataTestMethod]
+        [DataRow("Flight001", false)]
+        [DataRow("Flight002", true)]
+        public void AddFlight_ValidFlight_FlightIsAddedToList(string flightId, bool inFlight)
         {
             // Arrange
-            ControlTower controlTower = new ControlTower();
-            Flight flight = new Flight("AirlineA", "Flight001", "DestinationA", 2.5);
+            Mock<IFlight> flightMock = new Mock<IFlight>();
+            flightMock.SetupGet(f => f.Id).Returns(flightId);
+            flightMock.SetupGet(f => f.InFlight).Returns(inFlight);
+
+            ControlTower controlTower = CreateControlTower();
 
             // Act
-            controlTower.AddFlight(flight);
+            controlTower.AddFlight(flightMock.Object);
 
             // Assert
-            Flight addedFlight = controlTower.FindFlightById("Flight001");
+            IFlight addedFlight = controlTower.FindFlightById(flightId);
             Assert.IsNotNull(addedFlight);
-            Assert.AreEqual("Flight001", addedFlight.FlightData.Id);
+            Assert.AreEqual(flightId, addedFlight.Id);
+        }
+
+        [DataTestMethod]
+        [DataRow(10000, 5000, 15000)]
+        [DataRow(20000, -5000, 15000)]
+        public void ChangeFlightHeight_FlightInAir_ChangesAltitudeCorrectly(int initialHeight, int changeValue, int expectedHeight)
+        {
+            // Arrange
+            Mock<IFlight> flightMock = new Mock<IFlight>();
+            flightMock.SetupGet(f => f.InFlight).Returns(true);
+            flightMock.SetupProperty(f => f.FlightHeight, initialHeight);
+            flightMock.Setup(f => f.ChangeFlightHeight(It.IsAny<int>()))
+                      .Callback<int>(newHeight => flightMock.Object.FlightHeight = newHeight);
+
+            ControlTower controlTower = CreateControlTower();
+
+            // Act
+            controlTower.ChangeFlightHeight(flightMock.Object, changeValue);
+
+            // Assert
+            Assert.AreEqual(expectedHeight, flightMock.Object.FlightHeight, "The flight height was not changed as expected.");
         }
 
         [TestMethod]
-        public void ChangeFlightHeight_ShouldChangeFlightAltitude()
+        public void TakeOffFlight_FlightIsNotInAir_TakeOffEventTriggered()
         {
             // Arrange
-            ControlTower controlTower = new ControlTower();
-            Flight flight = new Flight("AirlineA", "Flight001", "DestinationA", 2.5);
-            controlTower.AddFlight(flight);
-            flight.TakeOffFlight();
+            Mock<IFlight> flightMock = new Mock<IFlight>();
+            bool eventTriggered = false;
+
+            ControlTower controlTower = CreateControlTower();
+            controlTower.FlightTakeOff += (sender, args) => eventTriggered = true;
+
+            flightMock.Setup(f => f.TakeOffFlight()).Raises(f => f.FlightTakeOff += null, new TakeOffEventArgs(flightMock.Object));
+            flightMock.SetupGet(f => f.InFlight).Returns(false);
+
+            controlTower.AddFlight(flightMock.Object);
 
             // Act
-            controlTower.ChangeFlightHeight(flight, 10000);
+            controlTower.TakeOffFlight(flightMock.Object);
 
             // Assert
-            Assert.AreEqual(10000, flight.FlightHeight);
+            Assert.IsTrue(eventTriggered, "The TakeOffFlight event was not triggered.");
         }
     }
 }

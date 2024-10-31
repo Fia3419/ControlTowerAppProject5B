@@ -1,4 +1,6 @@
 ﻿
+using ControlTowerBLL.Interfaces;
+
 namespace ControlTowerBLL
 {
     /// <summary>
@@ -9,13 +11,13 @@ namespace ControlTowerBLL
         /// <summary>
         /// The flight that has taken off.
         /// </summary>
-        public Flight Flight { get; }
+        public IFlight Flight { get; }
 
         /// <summary>
         /// Initializes a new instance of the TakeOffEventArgs class with the flight data.
         /// </summary>
         /// <param name="flight">The flight that has taken off.</param>
-        public TakeOffEventArgs(Flight flight)
+        public TakeOffEventArgs(IFlight flight)
         {
             Flight = flight;
         }

@@ -3,6 +3,7 @@ using System.Windows;
 using ControlTowerBLL;
 using ControlTowerDTO;
 using ControlTowerServices;
+using ControlTowerBLL.Interfaces;
 
 namespace ControlTowerApp
 {
@@ -100,7 +101,7 @@ namespace ControlTowerApp
         {
             Dispatcher.Invoke(() =>
             {
-                string message = $"Flight {e.Flight.FlightData.Airliner} (Flight ID: {e.Flight.FlightData.Id}) has departed for {e.Flight.FlightData.Destination} at {e.Flight.FlightData.DepartureTime:HH:mm:ss}.";
+                string message = $"Flight {e.Flight.Airliner} (Flight ID: {e.Flight.Id}) has departed for {e.Flight.Destination} at {e.Flight.DepartureTime:HH:mm:ss}.";
                 lvStatusUpdates.Items.Add(message);
             });
         }
@@ -114,11 +115,11 @@ namespace ControlTowerApp
         {
             Dispatcher.Invoke(() =>
             {
-                string message = $"Flight {e.Flight.FlightData.Airliner} (Flight ID: {e.Flight.FlightData.Id}) has landed at {DateTime.Now:HH:mm:ss}.";
+                string message = $"Flight {e.Flight.Airliner} (Flight ID: {e.Flight.Id}) has landed at {DateTime.Now:HH:mm:ss}.";
                 lvStatusUpdates.Items.Add(message);
                 btnTakeOff.IsEnabled = true;
                 btnNewHeight.IsEnabled = false;
-                e.Flight.FlightData.Destination = "Home";
+                e.Flight.Destination = "Home";
             });
         }
     }

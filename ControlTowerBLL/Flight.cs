@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Threading;
-using ControlTowerDTO;
+using ControlTowerBLL.Interfaces;
 
 namespace ControlTowerBLL
 {
@@ -8,30 +8,48 @@ namespace ControlTowerBLL
     /// Represents a flight with data related to its state, such as altitude, duration, and whether it's in flight.
     /// Handles the takeoff and landing operations with events.
     /// </summary>
-    public class Flight
+    public class Flight : IFlight
     {
-        /// <summary>
-        /// Event triggered when the flight takes off.
-        /// </summary>
         public event EventHandler<TakeOffEventArgs> FlightTakeOff;
-
-        /// <summary>
-        /// Event triggered when the flight lands.
-        /// </summary>
         public event EventHandler<LandedEventArgs> FlightLanded;
 
         private DispatcherTimer dispatchTimer;
         private double flightProgress;
 
         /// <summary>
-        /// Contains the flight data such as airliner, ID, destination, duration, and more.
+        /// Gets the airliner operating the flight.
         /// </summary>
-        public FlightDTO FlightData { get; private set; }
+        public string Airliner { get; private set; }
 
         /// <summary>
-        /// The current altitude of the flight.
+        /// Gets the unique identifier for the flight.
         /// </summary>
-        public int FlightHeight { get; private set; }
+        public string Id { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the destination of the flight.
+        /// </summary>
+        public string Destination { get; set; }
+
+        /// <summary>
+        /// Gets the duration of the flight in hours.
+        /// </summary>
+        public double Duration { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the flight is currently in the air.
+        /// </summary>
+        public bool InFlight { get; set; }
+
+        /// <summary>
+        /// Gets or sets the departure time of the flight.
+        /// </summary>
+        public DateTime DepartureTime { get; set; }
+
+        /// <summary>
+        /// Gets the current altitude of the flight.
+        /// </summary>
+        public int FlightHeight { get;  set; }
 
         /// <summary>
         /// Initializes a new instance of the Flight class with provided details.
@@ -42,14 +60,11 @@ namespace ControlTowerBLL
         /// <param name="duration">The duration of the flight in hours.</param>
         public Flight(string airliner, string id, string destination, double duration)
         {
-            FlightData = new FlightDTO
-            {
-                Airliner = airliner,
-                Id = id,
-                Destination = destination,
-                Duration = duration,
-                InFlight = false
-            };
+            Airliner = airliner;
+            Id = id;
+            Destination = destination;
+            Duration = duration;
+            InFlight = false;
         }
 
         /// <summary>
@@ -57,8 +72,8 @@ namespace ControlTowerBLL
         /// </summary>
         public void TakeOffFlight()
         {
-            FlightData.InFlight = true;
-            FlightData.DepartureTime = DateTime.Now;
+            InFlight = true;
+            DepartureTime = DateTime.Now;
             flightProgress = 0;
             SetupTimer();
             FlightTakeOff?.Invoke(this, new TakeOffEventArgs(this));
@@ -75,7 +90,7 @@ namespace ControlTowerBLL
         /// </summary>
         public void LandFlight()
         {
-            FlightData.InFlight = false;
+            InFlight = false;
             StopTimer();
             FlightLanded?.Invoke(this, new LandedEventArgs(this));
         }
@@ -97,7 +112,7 @@ namespace ControlTowerBLL
         private void OnTimerTick(object sender, EventArgs e)
         {
             flightProgress++;
-            if (flightProgress >= FlightData.Duration)
+            if (flightProgress >= Duration)
             {
                 LandFlight();
             }
