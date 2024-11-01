@@ -1,6 +1,5 @@
 using ControlTowerBLL;
 using ControlTowerDTO;
-using ControlTowerBLL.Interfaces;
 
 namespace ControlTowerServices
 {
@@ -22,30 +21,27 @@ namespace ControlTowerServices
         /// <param name="flightDTO">The flight data to add.</param>
         public void AddFlight(FlightDTO flightDTO)
         {
-            IFlight flight = new Flight(flightDTO.Airliner, flightDTO.Id, flightDTO.Destination, flightDTO.Duration);
+            Flight flight = new Flight(flightDTO.Airliner, flightDTO.Id, flightDTO.Destination, flightDTO.Duration);
             controlTower.AddFlight(flight);
         }
-
         /// <summary>
         /// Initiates the takeoff process for a flight.
         /// </summary>
         /// <param name="flightDTO">The flight data representing the flight to take off.</param>
         public void TakeOffFlight(FlightDTO flightDTO)
         {
-            IFlight flight = controlTower.FindFlightById(flightDTO.Id);
+            Flight flight = controlTower.FindFlightById(flightDTO.Id);
             controlTower.TakeOffFlight(flight);
         }
-
         /// <summary>
         /// Lands a flight.
         /// </summary>
         /// <param name="flightDTO">The flight data representing the flight to land.</param>
         public void LandFlight(FlightDTO flightDTO)
         {
-            IFlight flight = controlTower.FindFlightById(flightDTO.Id);
+            Flight flight = controlTower.FindFlightById(flightDTO.Id);
             controlTower.LandFlight(flight);
         }
-
         /// <summary>
         /// Changes the flight's altitude by a given value.
         /// </summary>
@@ -53,10 +49,9 @@ namespace ControlTowerServices
         /// <param name="newHeight">The value by which to change the flight's altitude.</param>
         public void ChangeFlightHeight(FlightDTO flightDTO, int newHeight)
         {
-            IFlight flight = controlTower.FindFlightById(flightDTO.Id);
+            Flight flight = controlTower.FindFlightById(flightDTO.Id);
             controlTower.ChangeFlightHeight(flight, newHeight);
         }
-
         /// <summary>
         /// Subscribes to the takeoff event for flights.
         /// </summary>

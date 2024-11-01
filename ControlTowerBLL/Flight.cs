@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Threading;
-using ControlTowerBLL.Interfaces;
+using ControlTowerDTO;
 
 namespace ControlTowerBLL
 {
@@ -8,48 +8,30 @@ namespace ControlTowerBLL
     /// Represents a flight with data related to its state, such as altitude, duration, and whether it's in flight.
     /// Handles the takeoff and landing operations with events.
     /// </summary>
-    public class Flight : IFlight
+    public class Flight
     {
+        /// <summary>
+        /// Event triggered when the flight takes off.
+        /// </summary>
         public event EventHandler<TakeOffEventArgs> FlightTakeOff;
+
+        /// <summary>
+        /// Event triggered when the flight lands.
+        /// </summary>
         public event EventHandler<LandedEventArgs> FlightLanded;
 
         private DispatcherTimer dispatchTimer;
         private double flightProgress;
 
         /// <summary>
-        /// Gets the airliner operating the flight.
+        /// Contains the flight data such as airliner, ID, destination, duration, and more.
         /// </summary>
-        public string Airliner { get; private set; }
+        public FlightDTO FlightData { get; private set; }
 
         /// <summary>
-        /// Gets the unique identifier for the flight.
+        /// The current altitude of the flight.
         /// </summary>
-        public string Id { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the destination of the flight.
-        /// </summary>
-        public string Destination { get; set; }
-
-        /// <summary>
-        /// Gets the duration of the flight in hours.
-        /// </summary>
-        public double Duration { get; private set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the flight is currently in the air.
-        /// </summary>
-        public bool InFlight { get; set; }
-
-        /// <summary>
-        /// Gets or sets the departure time of the flight.
-        /// </summary>
-        public DateTime DepartureTime { get; set; }
-
-        /// <summary>
-        /// Gets the current altitude of the flight.
-        /// </summary>
-        public int FlightHeight { get;  set; }
+        public int FlightHeight { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the Flight class with provided details.
@@ -60,11 +42,14 @@ namespace ControlTowerBLL
         /// <param name="duration">The duration of the flight in hours.</param>
         public Flight(string airliner, string id, string destination, double duration)
         {
-            Airliner = airliner;
-            Id = id;
-            Destination = destination;
-            Duration = duration;
-            InFlight = false;
+            FlightData = new FlightDTO
+            {
+                Airliner = airliner,
+                Id = id,
+                Destination = destination,
+                Duration = duration,
+                InFlight = false
+            };
         }
 
         /// <summary>
@@ -72,25 +57,25 @@ namespace ControlTowerBLL
         /// </summary>
         public void TakeOffFlight()
         {
-            InFlight = true;
-            DepartureTime = DateTime.Now;
+            FlightData.InFlight = true;
+            FlightData.DepartureTime = DateTime.Now;
             flightProgress = 0;
             SetupTimer();
             FlightTakeOff?.Invoke(this, new TakeOffEventArgs(this));
         }
 
         /// <summary>
-        /// Changes the flight's altitude to a new value.
+        /// Changes the flight's altitude by adding the specified change value to the current height.
         /// </summary>
-        /// <param name="newHeight">The new altitude for the flight.</param>
-        public void ChangeFlightHeight(int newHeight) => FlightHeight = newHeight;
+        /// <param name="changeValue">The value to change the altitude by.</param>
+        public void ChangeFlightHeight(int changeValue) => FlightHeight += changeValue;
 
         /// <summary>
         /// Initiates the landing process and triggers the FlightLanded event.
         /// </summary>
         public void LandFlight()
         {
-            InFlight = false;
+            FlightData.InFlight = false;
             StopTimer();
             FlightLanded?.Invoke(this, new LandedEventArgs(this));
         }
@@ -112,7 +97,7 @@ namespace ControlTowerBLL
         private void OnTimerTick(object sender, EventArgs e)
         {
             flightProgress++;
-            if (flightProgress >= Duration)
+            if (flightProgress >= FlightData.Duration)
             {
                 LandFlight();
             }
