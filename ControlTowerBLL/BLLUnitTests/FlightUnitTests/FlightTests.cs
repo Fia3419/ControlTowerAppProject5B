@@ -4,9 +4,22 @@ using ControlTowerBLL;
 
 namespace ControlTowerBLL.BLLUnitTests
 {
+
+    /// <summary>
+    /// Unit tests for the <see cref="Flight"/> class, ensuring that core functionalities such as takeoff,
+    /// changing flight height, and landing are working as expected, including event triggers.
+    /// </summary>
     [TestClass]
     public class FlightTests
     {
+        /// <summary>
+        /// Tests that the <see cref="Flight.TakeOffFlight"/> method correctly sets the flight status to in-flight
+        /// and triggers the <see cref="Flight.FlightTakeOff"/> event.
+        /// </summary>
+        /// <param name="airliner">The name of the airline operating the flight.</param>
+        /// <param name="id">The unique identifier for the flight.</param>
+        /// <param name="destination">The destination of the flight.</param>
+        /// <param name="duration">The duration of the flight in hours.</param>
         [DataTestMethod]
         [DataRow("AirlinerA", "FL123", "DestinationA", 3.0)]
         [DataRow("AirlinerB", "FL456", "DestinationB", 5.5)]
@@ -33,9 +46,9 @@ namespace ControlTowerBLL.BLLUnitTests
         /// <param name="changeValue">The value to change the altitude by.</param>
         /// <param name="expectedHeight">The expected altitude after the change.</param>
         [TestMethod]
-        [DataRow(10000, 5000, 15000)] // Test case with a positive change
-        [DataRow(15000, -5000, 10000)] // Test case with a negative change
-        [DataRow(15000, 0, 15000)] // Test case with no change
+        [DataRow(10000, 5000, 15000)]
+        [DataRow(15000, -5000, 10000)]
+        [DataRow(15000, 0, 15000)]
         public void ChangeFlightHeight_ShouldUpdateFlightHeight_WhenCalled(int initialHeight, int changeValue, int expectedHeight)
         {
             // Arrange
@@ -45,7 +58,7 @@ namespace ControlTowerBLL.BLLUnitTests
             const double testDuration = 3.5;
 
             Flight flight = new Flight(testAirline, testFlightId, testDestination, testDuration);
-            flight.ChangeFlightHeight(initialHeight); // Set initial height
+            flight.ChangeFlightHeight(initialHeight);
 
             // Act
             flight.ChangeFlightHeight(changeValue);
@@ -54,6 +67,15 @@ namespace ControlTowerBLL.BLLUnitTests
             Assert.AreEqual(expectedHeight, flight.FlightHeight, $"Expected flight height to be {expectedHeight} after changing by {changeValue}.");
         }
 
+
+        /// <summary>
+        /// Tests that the <see cref="Flight.LandFlight"/> method correctly sets the flight status to not in-flight
+        /// and triggers the <see cref="Flight.FlightLanded"/> event.
+        /// </summary>
+        /// <param name="airliner">The name of the airline operating the flight.</param>
+        /// <param name="id">The unique identifier for the flight.</param>
+        /// <param name="destination">The destination of the flight.</param>
+        /// <param name="duration">The duration of the flight in hours.</param>
         [DataTestMethod]
         [DataRow("AirlinerD", "FL012", "DestinationD", 2.0)]
         [DataRow("AirlinerE", "FL345", "DestinationE", 1.0)]
