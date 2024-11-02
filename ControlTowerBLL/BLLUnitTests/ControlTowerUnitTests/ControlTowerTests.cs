@@ -5,8 +5,8 @@ using ControlTowerBLL;
 namespace ControlTowerBLL.BLLUnitTests
 {
     /// <summary>
-    /// Unit tests for the ControlTower class, testing various functionalities including adding flights,
-    /// finding flights by ID, and ensuring that events are triggered appropriately.
+    /// Unit tests for the <see cref="ControlTower"/> class, testing various functionalities such as adding flights,
+    /// finding flights by ID, ensuring that events are raised or not raised, and verifying event arguments.
     /// </summary>
     [TestClass]
     public class ControlTowerTests
@@ -16,7 +16,7 @@ namespace ControlTowerBLL.BLLUnitTests
         private Flight testFlight2;
 
         /// <summary>
-        /// Initializes test data before each test method.
+        /// Initializes the test data before each test method is executed.
         /// </summary>
         [TestInitialize]
         public void Setup()
@@ -30,7 +30,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Tests that a valid flight ID returns the correct flight.
+        /// Tests that the <see cref="ControlTower.FindFlightById(string)"/> method returns the correct flight when a valid ID is provided.
         /// </summary>
         /// <param name="validId">The valid flight ID to search for.</param>
         /// <param name="expectedAirliner">The expected airliner name of the flight.</param>
@@ -48,7 +48,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Tests that an invalid flight ID returns null.
+        /// Tests that the <see cref="ControlTower.FindFlightById(string)"/> method returns null when an invalid ID is provided.
         /// </summary>
         /// <param name="invalidId">The invalid flight ID to search for.</param>
         [DataTestMethod]
@@ -66,20 +66,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Creates a test flight with the provided data.
-        /// </summary>
-        /// <param name="airliner">The airliner name.</param>
-        /// <param name="id">The flight ID.</param>
-        /// <param name="destination">The destination of the flight.</param>
-        /// <param name="duration">The duration of the flight.</param>
-        /// <returns>A new instance of the Flight class.</returns>
-        private static Flight CreateTestFlight(string airliner, string id, string destination, double duration)
-        {
-            return new Flight(airliner, id, destination, duration);
-        }
-
-        /// <summary>
-        /// Tests that adding a flight with different data correctly adds it to the control tower.
+        /// Tests that the <see cref="ControlTower.AddFlight(Flight)"/> method correctly adds flights with different data to the control tower.
         /// </summary>
         [DataTestMethod]
         [DataRow("AirlinerA", "FL100", "DestinationA", 5.0)]
@@ -87,7 +74,7 @@ namespace ControlTowerBLL.BLLUnitTests
         public void AddFlight_DifferentFlightData_ShouldAddFlight(string airliner, string id, string destination, double duration)
         {
             // Arrange
-            Flight flight = CreateTestFlight(airliner, id, destination, duration);
+            Flight flight = new Flight(airliner, id, destination, duration);
 
             // Act
             controlTower.AddFlight(flight);
@@ -97,7 +84,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Tests that the TakeOffFlight method triggers the takeoff event and marks the flight as in-flight.
+        /// Tests that the <see cref="ControlTower.TakeOffFlight(Flight)"/> method triggers the takeoff event and marks the flight as in-flight.
         /// </summary>
         [DataTestMethod]
         [DataRow("AirlinerC", "FL300", "DestinationC", 2.0)]
@@ -108,7 +95,7 @@ namespace ControlTowerBLL.BLLUnitTests
             bool eventTriggered = false;
             controlTower.FlightTakeOff += (sender, e) => eventTriggered = true;
 
-            Flight flight = CreateTestFlight(airliner, id, destination, duration);
+            Flight flight = new Flight(airliner, id, destination, duration);
             controlTower.AddFlight(flight);
 
             // Act
@@ -120,7 +107,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Tests that changing the flight's altitude updates it accordingly when the flight is in the air.
+        /// Tests that the <see cref="ControlTower.ChangeFlightHeight(Flight, int)"/> method updates the flight height accordingly when the flight is in-flight.
         /// </summary>
         [DataTestMethod]
         [DataRow("AirlinerE", "FL500", "DestinationE", 1.5, 10000, 3000)]
@@ -129,7 +116,7 @@ namespace ControlTowerBLL.BLLUnitTests
             string airliner, string id, string destination, double duration, int initialHeight, int changeValue)
         {
             // Arrange
-            Flight flight = CreateTestFlight(airliner, id, destination, duration);
+            Flight flight = new Flight(airliner, id, destination, duration);
             controlTower.AddFlight(flight);
             flight.TakeOffFlight();
             flight.ChangeFlightHeight(initialHeight);
@@ -143,7 +130,7 @@ namespace ControlTowerBLL.BLLUnitTests
         }
 
         /// <summary>
-        /// Tests that the LandFlight method triggers the landing event and marks the flight as not in-flight.
+        /// Tests that the <see cref="ControlTower.LandFlight(Flight)"/> method triggers the landing event and marks the flight as not in-flight.
         /// </summary>
         [DataTestMethod]
         [DataRow("AirlinerG", "FL700", "DestinationG", 2.5)]
@@ -154,7 +141,7 @@ namespace ControlTowerBLL.BLLUnitTests
             bool eventTriggered = false;
             controlTower.FlightLanded += (sender, e) => eventTriggered = true;
 
-            Flight flight = CreateTestFlight(airliner, id, destination, duration);
+            Flight flight = new Flight(airliner, id, destination, duration);
             controlTower.AddFlight(flight);
             flight.TakeOffFlight();
 
@@ -162,8 +149,95 @@ namespace ControlTowerBLL.BLLUnitTests
             controlTower.LandFlight(flight);
 
             // Assert
-            Assert.IsTrue(eventTriggered, "The landing event should be triggered.");
+            Assert.IsTrue(eventTriggered, "The landing event should be triggered but isn't.");
             Assert.IsFalse(flight.FlightData.InFlight, "The flight should be marked as not in-flight.");
+        }
+
+        /// <summary>
+        /// Tests that the <see cref="ControlTower.TakeOffFlight(Flight)"/> method does not trigger an event when there are no subscribers.
+        /// </summary>
+        [TestMethod]
+        public void TakeOffFlight_NoSubscribers_ShouldNotTriggerEvent()
+        {
+            // Arrange
+            bool eventTriggered = false;
+
+            // Act
+            controlTower.TakeOffFlight(testFlight1); // No subscribers added
+
+            // Assert
+            Assert.IsFalse(eventTriggered, "The takeoff event should not be triggered when there are no subscribers.");
+        }
+
+
+        /// <summary>
+        /// Tests that the <see cref="ControlTower.LandFlight(Flight)"/> method does not trigger an event when there are no subscribers.
+        /// </summary>
+        [TestMethod]
+        public void LandFlight_NoSubscribers_ShouldNotTriggerEvent()
+        {
+            // Arrange
+            bool eventTriggered = false;
+
+            // Act
+            testFlight1.TakeOffFlight(); // The flight must be in the air to land
+            controlTower.LandFlight(testFlight1); // No subscribers added
+
+            // Assert
+            Assert.IsFalse(eventTriggered, "The landing event should not be triggered when there are no subscribers.");
+        }
+
+
+        /// <summary>
+        /// Tests that the <see cref="ControlTower.TakeOffFlight(Flight)"/> method triggers an event with the correct sender and arguments.
+        /// </summary>
+        [TestMethod]
+        public void TakeOffFlight_EventArgs_VerifyCorrectSender()
+        {
+            // Arrange
+            object eventSender = null;
+            TakeOffEventArgs eventArgs = null;
+
+            controlTower.FlightTakeOff += (sender, args) =>
+            {
+                eventSender = sender;
+                eventArgs = args;
+            };
+
+            // Act
+            controlTower.TakeOffFlight(testFlight1);
+
+            // Assert
+            Assert.IsNotNull(eventArgs, "The event arguments should not be null.");
+            Assert.AreEqual(controlTower, eventSender, "The sender of the event should be the ControlTower instance.");
+            Assert.AreEqual(testFlight1, eventArgs.Flight, "The event arguments should contain the correct flight.");
+        }
+
+
+        /// <summary>
+        /// Tests that the <see cref="ControlTower.LandFlight(Flight)"/> method triggers an event with the correct sender and arguments.
+        /// </summary>
+        [TestMethod]
+        public void LandFlight_EventArgs_VerifyCorrectSender()
+        {
+            // Arrange
+            object eventSender = null;
+            LandedEventArgs eventArgs = null;
+
+            controlTower.FlightLanded += (sender, args) =>
+            {
+                eventSender = sender;
+                eventArgs = args;
+            };
+
+            // Act
+            testFlight1.TakeOffFlight(); // The flight must be in the air to land
+            controlTower.LandFlight(testFlight1);
+
+            // Assert
+            Assert.IsNotNull(eventArgs, "The event arguments should not be null.");
+            Assert.AreEqual(controlTower, eventSender, "The sender of the event should be the ControlTower instance.");
+            Assert.AreEqual(testFlight1, eventArgs.Flight, "The event arguments should contain the correct flight.");
         }
     }
 }
