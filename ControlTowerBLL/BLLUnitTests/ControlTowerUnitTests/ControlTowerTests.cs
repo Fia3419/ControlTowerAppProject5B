@@ -163,7 +163,7 @@ namespace ControlTowerBLL.BLLUnitTests
             bool eventTriggered = false;
 
             // Act
-            controlTower.TakeOffFlight(testFlight1); // No subscribers added
+            controlTower.TakeOffFlight(testFlight1);
 
             // Assert
             Assert.IsFalse(eventTriggered, "The takeoff event should not be triggered when there are no subscribers.");
@@ -180,8 +180,8 @@ namespace ControlTowerBLL.BLLUnitTests
             bool eventTriggered = false;
 
             // Act
-            testFlight1.TakeOffFlight(); // The flight must be in the air to land
-            controlTower.LandFlight(testFlight1); // No subscribers added
+            testFlight1.TakeOffFlight();
+            controlTower.LandFlight(testFlight1);
 
             // Assert
             Assert.IsFalse(eventTriggered, "The landing event should not be triggered when there are no subscribers.");
@@ -231,7 +231,7 @@ namespace ControlTowerBLL.BLLUnitTests
             };
 
             // Act
-            testFlight1.TakeOffFlight(); // The flight must be in the air to land
+            testFlight1.TakeOffFlight();
             controlTower.LandFlight(testFlight1);
 
             // Assert
