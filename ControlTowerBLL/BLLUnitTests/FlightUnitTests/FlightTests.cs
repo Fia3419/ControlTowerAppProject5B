@@ -49,7 +49,7 @@ namespace ControlTowerBLL.BLLUnitTests
         [DataRow(10000, 5000, 15000)]
         [DataRow(15000, -5000, 10000)]
         [DataRow(15000, 0, 15000)]
-        public void ChangeFlightHeight_ShouldUpdateFlightHeight_WhenCalled(int initialHeight, int changeValue, int expectedHeight)
+        public void ChangeFlightHeight_WhenCalled_ShouldUpdateFlightHeight(int initialHeight, int changeValue, int expectedHeight)
         {
             // Arrange
             const string testAirline = "TestAirline";

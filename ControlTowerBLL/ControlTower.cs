@@ -58,8 +58,8 @@ namespace ControlTowerBLL
         /// <param name="flight">The flight to be added.</param>
         public void AddFlight(Flight flight)
         {
-            flight.FlightTakeOff += OnFlightTakeOff;
-            flight.FlightLanded += OnFlightLanded;
+            flight.FlightTakeOff += (sender, e) => FlightTakeOff?.Invoke(this, e);
+            flight.FlightLanded += (sender, e) => FlightLanded?.Invoke(this, e);
             Add(flight);
         }
 
