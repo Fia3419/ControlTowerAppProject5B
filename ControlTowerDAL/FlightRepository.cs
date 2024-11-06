@@ -27,9 +27,6 @@ namespace ControlTowerDAL
         /// Retrieves the list of all flights stored in the repository.
         /// </summary>
         /// <returns>A list of <see cref="FlightDTO"/> objects representing the flights in the repository.</returns>
-        public List<FlightDTO> GetFlights()
-        {
-            return flights;
-        }
+        public List<FlightDTO> GetFlights() => flights;
     }
 }
